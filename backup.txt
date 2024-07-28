@@ -1,0 +1,78 @@
+import base64
+import os
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.backends import default_backend
+from cryptography.fernet import Fernet
+from colorama import Fore, Back, Style, init
+
+init(autoreset=True)
+
+def generate_key(password, salt):
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend()
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(password))
+    return key
+
+def encrypt_message(message, key):
+    f = Fernet(key)
+    encrypted_message = f.encrypt(message.encode())
+    return encrypted_message
+
+def decrypt_message(encrypted_message, key):
+    f = Fernet(key)
+    decrypted_message = f.decrypt(encrypted_message).decode()
+    return decrypted_message
+
+def load_key_from_file(file_path):
+    with open(file_path, 'rb') as file:
+        return file.read().strip()
+
+def main():
+    while True:
+        print(Fore.CYAN + Style.BRIGHT + "\n============================")
+        print(Fore.CYAN + Style.BRIGHT + "      MENU CHỨC NĂNG")
+        print(Fore.CYAN + Style.BRIGHT + "============================")
+        print(Fore.YELLOW + Style.BRIGHT + "1. " + Fore.GREEN + "Mã hóa")
+        print(Fore.YELLOW + Style.BRIGHT + "2. " + Fore.GREEN + "Giải mã")
+        print(Fore.YELLOW + Style.BRIGHT + "3. " + Fore.RED + "Thoát")
+        choice = input(Fore.YELLOW + Style.BRIGHT + "Chọn chức năng (1/2/3): ")
+
+        if choice == '3':
+            break
+
+        key_file = input(Fore.WHITE + Back.BLACK + Style.BRIGHT + "Nhập đường dẫn đến file key: ")
+        try:
+            password = load_key_from_file(key_file)
+        except FileNotFoundError:
+            print("Không tìm thấy file key.")
+            continue
+
+        salt = os.urandom(16)
+        key = generate_key(password, salt)
+
+        if choice == '1':
+            message = input(Fore.WHITE + Back.BLACK + Style.BRIGHT + "Nhập nội dung cần mã hóa: ")
+            encrypted = encrypt_message(message, key)
+            print("Nội dung đã mã hóa:")
+            print(base64.urlsafe_b64encode(salt + encrypted).decode())
+
+        elif choice == '2':
+            encrypted_input = input("Nhập nội dung đã mã hóa: ")
+            try:
+                decoded = base64.urlsafe_b64decode(encrypted_input)
+                salt = decoded[:16]
+                encrypted = decoded[16:]
+                key = generate_key(password, salt)
+                decrypted = decrypt_message(encrypted, key)
+                print("Nội dung đã giải mã: " + Fore.GREEN + Style.BRIGHT + decrypted)
+            except Exception as e:
+                print("Lỗi khi giải mã:", str(e))
+
+if __name__ == "__main__":
+    main()
