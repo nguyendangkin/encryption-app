@@ -45,7 +45,7 @@ class EncryptionApp(QWidget):
         decrypt_btn.clicked.connect(self.decrypt)
         btn_layout.addWidget(decrypt_btn)
 
-        load_file_btn = QPushButton("Tải file nội dung")
+        load_file_btn = QPushButton("Tải lên file nội dung")
         load_file_btn.clicked.connect(self.load_content_file)
         btn_layout.addWidget(load_file_btn)
 
@@ -60,6 +60,10 @@ class EncryptionApp(QWidget):
         copy_btn = QPushButton("Copy kết quả")
         copy_btn.clicked.connect(self.copy_result)
         result_layout.addWidget(copy_btn)
+
+        save_btn = QPushButton("Tải về file kết quả")
+        save_btn.clicked.connect(self.save_result_to_file)
+        result_layout.addWidget(save_btn)
 
         layout.addLayout(result_layout)
 
@@ -87,13 +91,13 @@ class EncryptionApp(QWidget):
         return decrypted_message
 
     def load_key_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Chọn file key")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Chọn file key", "", "Text Files (*.txt);;All Files (*)")
         if file_name:
             with open(file_name, 'r', encoding='utf-8') as file:
                 self.key_input.setPlainText(file.read().strip())
 
     def load_content_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Chọn file nội dung")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Chọn file nội dung", "", "Text Files (*.txt);;All Files (*)")
         if file_name:
             with open(file_name, 'r', encoding='utf-8') as file:
                 self.message_input.setPlainText(file.read().strip())
@@ -138,6 +142,17 @@ class EncryptionApp(QWidget):
             QMessageBox.information(self, "Thông báo", "Đã sao chép kết quả vào clipboard!")
         else:
             QMessageBox.warning(self, "Cảnh báo", "Không có kết quả để sao chép!")
+
+    def save_result_to_file(self):
+        result = self.result_output.toPlainText()
+        if result:
+            file_name, _ = QFileDialog.getSaveFileName(self, "Lưu kết quả", "", "Text Files (*.txt);;All Files (*)")
+            if file_name:
+                with open(file_name, 'w', encoding='utf-8') as file:
+                    file.write(result)
+                QMessageBox.information(self, "Thông báo", "Đã lưu kết quả vào file!")
+        else:
+            QMessageBox.warning(self, "Cảnh báo", "Không có kết quả để lưu!")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
