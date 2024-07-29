@@ -1,73 +1,59 @@
 import sys
 import base64
 import os
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTextEdit, QLabel, QFileDialog, QMessageBox
-from PyQt6.QtGui import QFont, QIcon
-from PyQt6.QtCore import Qt
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from tkinter.scrolledtext import ScrolledText
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 
-class EncryptionApp(QWidget):
+class EncryptionApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle('Ứng dụng Mã hóa/Giải mã')
-        self.setGeometry(100, 100, 600, 400)
-
-        layout = QVBoxLayout()
-
+        self.title("Ứng dụng Mã hóa/Giải mã")
+        self.geometry("1500x1000")
+        
         # Key input
-        key_layout = QHBoxLayout()
-        self.key_input = QTextEdit()
-        self.key_input.setPlaceholderText("Nhập key hoặc chọn file key")
-        key_layout.addWidget(self.key_input)
-        key_file_btn = QPushButton("Chọn file key")
-        key_file_btn.clicked.connect(self.load_key_file)
-        key_layout.addWidget(key_file_btn)
-        layout.addLayout(key_layout)
-
+        key_frame = tk.Frame(self)
+        key_frame.pack(fill=tk.X)
+        
+        self.key_input = ScrolledText(key_frame, height=4)
+        self.key_input.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        key_file_btn = tk.Button(key_frame, text="Chọn file key", command=self.load_key_file)
+        key_file_btn.pack(side=tk.RIGHT)
+        
         # Message input
-        self.message_input = QTextEdit()
-        self.message_input.setPlaceholderText("Nhập nội dung cần mã hóa/giải mã hoặc chọn file")
-        layout.addWidget(self.message_input)
-
+        self.message_input = ScrolledText(self, height=10)
+        self.message_input.pack(fill=tk.BOTH, expand=True)
+        
         # Buttons
-        btn_layout = QHBoxLayout()
-        encrypt_btn = QPushButton("Mã hóa")
-        encrypt_btn.clicked.connect(self.encrypt)
-        btn_layout.addWidget(encrypt_btn)
-
-        decrypt_btn = QPushButton("Giải mã")
-        decrypt_btn.clicked.connect(self.decrypt)
-        btn_layout.addWidget(decrypt_btn)
-
-        load_file_btn = QPushButton("Tải lên file nội dung")
-        load_file_btn.clicked.connect(self.load_content_file)
-        btn_layout.addWidget(load_file_btn)
-
-        layout.addLayout(btn_layout)
-
+        btn_frame = tk.Frame(self)
+        btn_frame.pack(fill=tk.X)
+        
+        encrypt_btn = tk.Button(btn_frame, text="Mã hóa", command=self.encrypt)
+        encrypt_btn.pack(side=tk.LEFT)
+        
+        decrypt_btn = tk.Button(btn_frame, text="Giải mã", command=self.decrypt)
+        decrypt_btn.pack(side=tk.LEFT)
+        
+        load_file_btn = tk.Button(btn_frame, text="Tải lên file nội dung/ mã hóa", command=self.load_content_file)
+        load_file_btn.pack(side=tk.LEFT)
+        
         # Result output
-        result_layout = QHBoxLayout()
-        self.result_output = QTextEdit()
-        self.result_output.setReadOnly(True)
-        result_layout.addWidget(self.result_output)
-
-        copy_btn = QPushButton("Copy kết quả")
-        copy_btn.clicked.connect(self.copy_result)
-        result_layout.addWidget(copy_btn)
-
-        save_btn = QPushButton("Tải về file kết quả")
-        save_btn.clicked.connect(self.save_result_to_file)
-        result_layout.addWidget(save_btn)
-
-        layout.addLayout(result_layout)
-
-        self.setLayout(layout)
+        self.result_output = ScrolledText(self, height=10, state=tk.DISABLED)
+        self.result_output.pack(fill=tk.BOTH, expand=True)
+        
+        result_btn_frame = tk.Frame(self)
+        result_btn_frame.pack(fill=tk.X)
+        
+        copy_btn = tk.Button(result_btn_frame, text="Copy kết quả", command=self.copy_result)
+        copy_btn.pack(side=tk.LEFT)
+        
+        save_btn = tk.Button(result_btn_frame, text="Tải về file kết quả", command=self.save_result_to_file)
+        save_btn.pack(side=tk.LEFT)
 
     def generate_key(self, password, salt):
         kdf = PBKDF2HMAC(
@@ -91,37 +77,43 @@ class EncryptionApp(QWidget):
         return decrypted_message
 
     def load_key_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Chọn file key", "", "Text Files (*.txt);;All Files (*)")
+        file_name = filedialog.askopenfilename(title="Chọn file key", filetypes=(("Text Files", "*.txt"), ("All Files", "*.*")))
         if file_name:
             with open(file_name, 'r', encoding='utf-8') as file:
-                self.key_input.setPlainText(file.read().strip())
+                self.key_input.delete(1.0, tk.END)
+                self.key_input.insert(tk.END, file.read().strip())
 
     def load_content_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Chọn file nội dung", "", "Text Files (*.txt);;All Files (*)")
+        file_name = filedialog.askopenfilename(title="Chọn file nội dung", filetypes=(("Text Files", "*.txt"), ("All Files", "*.*")))
         if file_name:
             with open(file_name, 'r', encoding='utf-8') as file:
-                self.message_input.setPlainText(file.read().strip())
+                self.message_input.delete(1.0, tk.END)
+                self.message_input.insert(tk.END, file.read().strip())
 
     def encrypt(self):
-        password = self.key_input.toPlainText().strip().encode('utf-8')
-        message = self.message_input.toPlainText().strip()
+        password = self.key_input.get(1.0, tk.END).strip().encode('utf-8')
+        message = self.message_input.get(1.0, tk.END).strip()
         
         if not password or not message:
-            QMessageBox.warning(self, "Lỗi", "Vui lòng nhập cả key và nội dung.")
+            messagebox.showwarning("Lỗi", "Vui lòng nhập cả key và nội dung.")
             return
 
         salt = os.urandom(16)
         key = self.generate_key(password, salt)
         encrypted = self.encrypt_message(message, key)
         result = base64.urlsafe_b64encode(salt + encrypted).decode()
-        self.result_output.setPlainText(result)
+        
+        self.result_output.config(state=tk.NORMAL)
+        self.result_output.delete(1.0, tk.END)
+        self.result_output.insert(tk.END, result)
+        self.result_output.config(state=tk.DISABLED)
 
     def decrypt(self):
-        password = self.key_input.toPlainText().strip().encode('utf-8')
-        encrypted_input = self.message_input.toPlainText().strip()
+        password = self.key_input.get(1.0, tk.END).strip().encode('utf-8')
+        encrypted_input = self.message_input.get(1.0, tk.END).strip()
 
         if not password or not encrypted_input:
-            QMessageBox.warning(self, "Lỗi", "Vui lòng nhập cả key và nội dung đã mã hóa.")
+            messagebox.showwarning("Lỗi", "Vui lòng nhập cả key và nội dung đã mã hóa.")
             return
 
         try:
@@ -130,32 +122,34 @@ class EncryptionApp(QWidget):
             encrypted = decoded[16:]
             key = self.generate_key(password, salt)
             decrypted = self.decrypt_message(encrypted, key)
-            self.result_output.setPlainText(decrypted)
+            
+            self.result_output.config(state=tk.NORMAL)
+            self.result_output.delete(1.0, tk.END)
+            self.result_output.insert(tk.END, decrypted)
+            self.result_output.config(state=tk.DISABLED)
         except Exception as e:
-            QMessageBox.critical(self, "Lỗi", f"Lỗi khi giải mã: {str(e)}")
+            messagebox.showerror("Lỗi", f"Lỗi khi giải mã: {str(e)}")
 
     def copy_result(self):
-        result = self.result_output.toPlainText()
+        result = self.result_output.get(1.0, tk.END).strip()
         if result:
-            clipboard = QApplication.clipboard()
-            clipboard.setText(result)
-            QMessageBox.information(self, "Thông báo", "Đã sao chép kết quả vào clipboard!")
+            self.clipboard_clear()
+            self.clipboard_append(result)
+            messagebox.showinfo("Thông báo", "Đã sao chép kết quả vào clipboard!")
         else:
-            QMessageBox.warning(self, "Cảnh báo", "Không có kết quả để sao chép!")
+            messagebox.showwarning("Cảnh báo", "Không có kết quả để sao chép!")
 
     def save_result_to_file(self):
-        result = self.result_output.toPlainText()
+        result = self.result_output.get(1.0, tk.END).strip()
         if result:
-            file_name, _ = QFileDialog.getSaveFileName(self, "Lưu kết quả", "", "Text Files (*.txt);;All Files (*)")
+            file_name = filedialog.asksaveasfilename(title="Lưu kết quả", defaultextension=".txt", filetypes=(("Text Files", "*.txt"), ("All Files", "*.*")))
             if file_name:
                 with open(file_name, 'w', encoding='utf-8') as file:
                     file.write(result)
-                QMessageBox.information(self, "Thông báo", "Đã lưu kết quả vào file!")
+                messagebox.showinfo("Thông báo", "Đã lưu kết quả vào file!")
         else:
-            QMessageBox.warning(self, "Cảnh báo", "Không có kết quả để lưu!")
+            messagebox.showwarning("Cảnh báo", "Không có kết quả để lưu!")
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = EncryptionApp()
-    ex.show()
-    sys.exit(app.exec())
+if __name__ == "__main__":
+    app = EncryptionApp()
+    app.mainloop()
