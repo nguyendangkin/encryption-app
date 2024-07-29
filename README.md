@@ -66,7 +66,3 @@
 
 7. **Lưu Kết Quả**
     - Nhấp vào nút "Tải về file kết quả" để lưu kết quả vào file.
-
-```
-
-```
