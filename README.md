@@ -1,6 +1,3 @@
-Dưới đây là mẫu README cho ứng dụng mã hóa và giải mã của bạn. Bạn có thể điều chỉnh nội dung để phù hợp với yêu cầu cụ thể và thông tin về ứng dụng của bạn.
-
-````markdown
 # Ứng Dụng Mã Hóa/Giải Mã
 
 Ứng dụng Mã hóa/Giải mã sử dụng Python và Tkinter để mã hóa và giải mã nội dung văn bản. Ứng dụng này hỗ trợ nhập và lưu key từ file, mã hóa và giải mã văn bản, và sao chép kết quả vào clipboard hoặc lưu vào file.
@@ -28,7 +25,6 @@ Dưới đây là mẫu README cho ứng dụng mã hóa và giải mã của b�
     sudo apt update
     sudo apt install python3 python3-pip
     ```
-````
 
 2. **Cài đặt các thư viện cần thiết**
 
@@ -70,3 +66,7 @@ Dưới đây là mẫu README cho ứng dụng mã hóa và giải mã của b�
 
 7. **Lưu Kết Quả**
     - Nhấp vào nút "Tải về file kết quả" để lưu kết quả vào file.
+
+```
+
+```
