@@ -70,27 +70,3 @@ Dưới đây là mẫu README cho ứng dụng mã hóa và giải mã của b�
 
 7. **Lưu Kết Quả**
     - Nhấp vào nút "Tải về file kết quả" để lưu kết quả vào file.
-
-## Đóng Gói Ứng Dụng
-
-Để đóng gói ứng dụng thành tệp thực thi, hãy sử dụng PyInstaller:
-
-1. **Cài đặt PyInstaller**
-
-    ```sh
-    pip3 install pyinstaller
-    ```
-
-2. **Đóng gói ứng dụng**
-
-    ```sh
-    pyinstaller --onefile --windowed encryption_app.py
-    ```
-
-3. **Tìm tệp thực thi**
-
-    Tệp thực thi sẽ được tạo trong thư mục `dist`.
-
-## Giới Thiệu
-
-Ứng dụng này được phát triển để cung cấp một công cụ đơn giản cho việc mã hóa và giải mã văn bản bằng cách sử dụng thư viện `cryptography` trong Python. Đối tượng người dùng có thể dễ dàng nhập, mã hóa, giải mã và lưu trữ nội dung văn bản.
