@@ -17,7 +17,7 @@
 -   Tkinter
 -   Cryptography
 
-## Cài Đặt
+## Cài Đặt Từ Mã Nguồn
 
 1. **Cài đặt Python 3.8 hoặc phiên bản mới hơn**
 
